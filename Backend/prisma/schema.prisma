@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  uploads      Upload[]
+  products     Product[]
+  snapshots    InventorySnapshot[]
+  sales        SalesDaily[]
+  marketing    MarketingRecord[]
+  variations   Variation[]
+}
+
+model Upload {
+  id         String   @id @default(cuid())
+  type       String
+  dateStart  DateTime?
+  dateEnd    DateTime?
+  filename   String? // Changed from originalName to match your new schema
+  path       String? // Changed from storedPath
+  status     String   @default("pending")
+  meta       Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  asin        String
+  sku         String
+  title       String?
+  imageUrl    String?
+  fbaQty      Int       @default(0)
+  mfnQty      Int       @default(0)
+  vendorQty   Int       @default(0)
+  totalQty    Int       @default(0)
+  lastUpdated DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, asin, sku])
+  @@index([userId])
+}
+
+model InventorySnapshot {
+  id        String   @id @default(cuid())
+  asin      String
+  sku       String
+  date      DateTime
+  fbaQty    Int      @default(0)
+  mfnQty    Int      @default(0)
+  vendorQty Int      @default(0)
+  totalQty  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, asin, sku, date])
+  @@index([userId, date])
+}
+
+model SalesDaily {
+  id        String   @id @default(cuid())
+  date      DateTime
+  sku       String
+  asin      String   // <-- ADD THIS LINE
+  quantity  Int
+  revenue   Float    @default(0)
+  cost      Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, sku])
+}
+
+model MarketingRecord {
+  id           String    @id @default(cuid())
+  date         DateTime
+  level        String    @default("campaign")
+  campaignName String?
+  adGroupName  String?
+  keyword      String?
+  asin         String?
+  sku          String?
+  impressions  Int       @default(0)
+  clicks       Int       @default(0)
+  spend        Float     @default(0)
+  orders       Int       @default(0)
+  sales        Float     @default(0)
+  ctr          Float     @default(0)
+  cpc          Float     @default(0)
+  acos         Float     @default(0)
+  roas         Float     @default(0)
+  marketplace  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, campaignName, date])
+  @@index([userId, asin, date])
+}
+
+model Variation {
+  id        String    @id @default(cuid())
+  name      String
+  code      String?
+  tags      String[]
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  VariationItem[]
+
+  @@index([userId, name])
+}
+
+model VariationItem {
+  id          String   @id @default(cuid())
+  sku         String?
+  asin        String?
+  note        String?
+
+  // Relation
+  variationId String
+  variation   Variation @relation(fields: [variationId], references: [id], onDelete: Cascade)
+
+  @@index([variationId])
+}

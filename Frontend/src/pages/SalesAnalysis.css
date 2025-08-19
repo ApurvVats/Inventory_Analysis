@@ -1,0 +1,11 @@
+.sa-wrap { padding:16px; }
+.sa-header { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
+.sa-header h2 { margin:0; }
+.sa-sub { color:#9fb3c8; font-size:14px; }
+.sa-cards { display:grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap:12px; }
+.sa-card { border:1px solid rgba(255,255,255,.1); border-radius:10px; background:rgba(255,255,255,.02); }
+.sa-card-h { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); font-weight:600; }
+.sa-card-b { padding:12px; color:#cbd5e1; min-height:72px; }
+@media (max-width:900px){
+  .sa-cards { grid-template-columns: 1fr; }
+}

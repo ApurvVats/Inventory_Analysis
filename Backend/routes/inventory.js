@@ -1,0 +1,13 @@
+import express from "express";
+import multer from "multer";
+import path from "path";
+import { uploadInventory, uploadInventoryVendor, availability, view } from "../controllers/inventoryController.js";
+import {authRequired} from "../middleware/auth.js";
+const router = express.Router();
+const uploadsDir = path.join(process.cwd(), "uploads");
+const upload = multer({ dest: uploadsDir });
+router.post("/upload", authRequired, upload.single("file"), uploadInventory);
+router.post("/upload-vendor", authRequired, upload.single("file"), uploadInventoryVendor);
+router.get("/availability", authRequired, availability);
+router.get("/view", authRequired, view);
+export default router;

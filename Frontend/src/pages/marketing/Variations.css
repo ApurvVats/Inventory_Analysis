@@ -1,0 +1,9 @@
+.card { border:1px solid rgba(255,255,255,.12); border-radius:10px; overflow:hidden; }
+.row { display:grid; grid-template-columns: 1.2fr 0.8fr 1fr 2fr 0.8fr; border-bottom:1px solid rgba(255,255,255,.08); }
+.row > div { padding:10px 12px; }
+.row.head { background:#0c1830; font-weight:600; }
+.empty { padding:16px; text-align:center; opacity:.7; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.5); display:grid; place-items:center; }
+.panel { background:#111a33; border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:16px; width:520px; max-width:92vw; display:flex; flex-direction:column; gap:8px; }
+.panel input, .panel textarea { background:rgba(255,255,255,.04); color:#e8ecf5; border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:8px 10px; }
+.actions { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }

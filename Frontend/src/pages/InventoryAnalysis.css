@@ -1,0 +1,12 @@
+:root{ --surf:#151f40; --text:#e8ecf5; --muted:#8a93ad; --border:rgba(255,255,255,.10); --primary:#5b8cff; --r:12px; --shadow:0 10px 30px rgba(0,0,0,.35) }
+.ia-wrap{ width:100%; max-width:1200px; }
+.ia-toolbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px }
+.ia-controls select{ height:36px; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,.02); color:var(--text); padding:0 8px }
+.ia-kpis{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:12px }
+.kpi{ background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)), var(--surf); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow) }
+.kpi-h{ color:var(--muted); font-size:13px }
+.kpi-v{ font-size:24px; font-weight:700 }
+.ia-sub{ margin:16px 0 8px }
+.ia-table{ border:1px solid var(--border); border-radius:10px; overflow:hidden; background:rgba(255,255,255,.02) }
+.ia-row{ display:grid; grid-template-columns: 1fr 1fr .8fr .8fr .8fr; gap:10px; padding:10px 12px; border-bottom:1px solid var(--border) }
+.ia-head{ background:rgba(255,255,255,.04); font-weight:600; color:var(--muted) }
