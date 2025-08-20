@@ -7,7 +7,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: 'apurv-analytics-app-2025'
-  NODE_VERSION: '20.x'
+  NODE_VERSION: '22'
 
 jobs:
   build:
