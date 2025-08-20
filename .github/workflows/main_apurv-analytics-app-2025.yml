@@ -26,10 +26,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: Backend/package-lock.json
 
       - name: '3. Install Dependencies & Build'
-        working-directory: ./backend
+        working-directory: ./Backend
         run: |
           npm install
           npm run build --if-present  # This runs 'npx prisma generate'
