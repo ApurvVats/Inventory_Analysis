@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerThunk } from "../store/slices/authSlice.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import "./register.css";
+import "./Register.css";
 
 export default function Register() {
   const [username, setU] = useState("");
