@@ -1,9 +1,10 @@
 import axios from "axios";
 
-export const route = axios.create({
-  baseURL: "http://localhost:4000/api",
-  withCredentials: true,
-});
+app.use(cors({
+   origin: "https://witty-pond-0c0668400.2.azurestaticapps.net", 
+   credentials: true 
+  }));
+
 
 // Optional helper: set/remove token globally
 export function setAuthToken(token) {
