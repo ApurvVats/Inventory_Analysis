@@ -150,7 +150,6 @@ model Variation {
 
   @@index([userId, name])
 }
-
 model VariationItem {
   id          String   @id @default(cuid())
   sku         String?

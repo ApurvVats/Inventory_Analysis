@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginThunk } from "../store/slices/authSlice.jsx";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import "./login.css";
+import "./Login.css";
 
 export default function Login() {
   const [username, setU] = useState("");
