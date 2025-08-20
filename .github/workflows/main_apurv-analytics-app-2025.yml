@@ -64,6 +64,7 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DD0399AC79414F2D8524B3DCDB77A214 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_70F3721AED054CBA99744E8457234734 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_198C34FCABB4466E862601E08DB285F0 }}
+          auth-type: 'oidc'
 
       - name: '3. Run Database Migrations'
         # Run this step from the root, as the artifact contains the backend folder
