@@ -1,4 +1,3 @@
-# A professional workflow for deploying a Node.js backend from a monorepo
 name: Build and Deploy Backend to Azure App Service
 on:
   push:
@@ -6,20 +5,17 @@ on:
       - main
   workflow_dispatch:
 
-# Define environment variables for easy updates
 env:
-  AZURE_WEBAPP_NAME: 'apurv-analytics-app-2025'   # The name of your Azure Web App
-  NODE_VERSION: '18.x'                            # The Node.js version to use
+  AZURE_WEBAPP_NAME: 'apurv-analytics-app-2025'
+  NODE_VERSION: '18.x'
 
 jobs:
-  #-----------------------------------------
-  # BUILD JOB: Prepares the application
-  #-----------------------------------------
   build:
     runs-on: ubuntu-latest
     steps:
       - name: '1. Checkout Repository'
         uses: actions/checkout@v4
+        # Checkout DEFAULT path (root of workspace)
 
       - name: '2. Set up Node.js Environment'
         uses: actions/setup-node@v3
@@ -29,20 +25,11 @@ jobs:
           cache-dependency-path: Backend/package-lock.json
 
       - name: '3. Install Dependencies & Build'
-        working-directory: ./Backend
+        working-directory: Backend
         run: |
           npm install
-          npm run build --if-present  # This runs 'npx prisma generate'
+          npm run build --if-present    # Runs 'npx prisma generate' if present
 
-      - name: '4. Upload Backend Artifact'
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app
-          path: ./Backend
-
-  #----------------------------------------------------
-  # DEPLOY JOB: Deploys the prepared app to Azure
-  #----------------------------------------------------
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -50,14 +37,13 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write # Required for secure, passwordless login to Azure
+      id-token: write
       contents: read
     steps:
-      - name: '1. Download Backend Artifact'
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
-          
+      - name: '1. Checkout Repository'
+        uses: actions/checkout@v4
+        # Fresh checkout of the repo for deploy job
+
       - name: '2. Login to Azure'
         uses: azure/login@v2
         with:
@@ -65,10 +51,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_70F3721AED054CBA99744E8457234734 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_198C34FCABB4466E862601E08DB285F0 }}
 
-      - name: Run Database Migrations
-        run: |
-         cd node-app
-         npx prisma migrate deploy
+      - name: '3. Run Database Migrations'
+        working-directory: Backend
+        run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -77,5 +62,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-
-          package: .
+          package: Backend
