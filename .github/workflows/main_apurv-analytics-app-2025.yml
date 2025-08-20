@@ -67,7 +67,7 @@ jobs:
 
       - name: '3. Run Database Migrations'
         # Run this step from the root, as the artifact contains the backend folder
-        working-directory: ./Inventory_Analysis/Backend
+        working-directory: Backend
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
