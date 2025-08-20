@@ -57,7 +57,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
+          path: ./Backend
       - name: '2. Login to Azure'
         uses: azure/login@v2
         with:
