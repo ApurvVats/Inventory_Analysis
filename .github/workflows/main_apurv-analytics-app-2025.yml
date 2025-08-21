@@ -1,4 +1,5 @@
 name: Build and Deploy Backend to Azure App Service
+
 on:
   push:
     branches:
@@ -8,6 +9,7 @@ on:
 env:
   AZURE_WEBAPP_NAME: 'apurv-analytics-app-2025'
   NODE_VERSION: '22'
+  BACKEND_DIRECTORY: 'Backend' # Define the directory for reusability
 
 jobs:
   build:
@@ -15,21 +17,26 @@ jobs:
     steps:
       - name: '1. Checkout Repository'
         uses: actions/checkout@v4
-        # Checkout DEFAULT path (root of workspace)
 
       - name: '2. Set up Node.js Environment'
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: Backend/package-lock.json
+          cache-dependency-path: ${{ env.BACKEND_DIRECTORY }}/package-lock.json
 
       - name: '3. Install Dependencies & Build'
-        working-directory: Backend
+        working-directory: ${{ env.BACKEND_DIRECTORY }}
         run: |
           npm install
-          npm run build --if-present    # Runs 'npx prisma generate' if present
+          npm run build --if-present
 
+      - name: '4. Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: node-app-package # A name for your artifact
+          path: ${{ env.BACKEND_DIRECTORY }}
+          
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -40,9 +47,12 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: '1. Checkout Repository'
-        uses: actions/checkout@v4
-        # Fresh checkout of the repo for deploy job
+      # Step 1: Download the artifact from the build job
+      - name: '1. Download Artifact'
+        uses: actions/download-artifact@v3
+        with:
+          name: node-app-package
+          path: ${{ env.BACKEND_DIRECTORY }}
 
       - name: '2. Login to Azure'
         uses: azure/login@v2
@@ -52,7 +62,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_198C34FCABB4466E862601E08DB285F0 }}
 
       - name: '3. Run Database Migrations'
-        working-directory: Backend
+        working-directory: ${{ env.BACKEND_DIRECTORY }}
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -62,4 +72,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: Backend
+          package: ${{ env.BACKEND_DIRECTORY }}
