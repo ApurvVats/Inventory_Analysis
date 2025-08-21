@@ -1,7 +1,6 @@
 // controllers/authController.js
 import authService from "../services/authService.js"; // This service must also be converted to Prisma
 import { prisma } from "../db/prisma.js";
-
 const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
@@ -17,7 +16,6 @@ const register = async (req, res, next) => {
     res.status(code).json({ error: e.message || "Registration failed" });
   }
 };
-
 const login = async (req, res, next) => {
   try {
     const { username, password } = req.body;

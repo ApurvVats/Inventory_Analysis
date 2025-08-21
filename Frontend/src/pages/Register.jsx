@@ -12,7 +12,6 @@ export default function Register() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const loading = useSelector((s) => s.auth.loading);
-
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!username.trim()) return toast.error("Username is required");

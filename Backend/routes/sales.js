@@ -41,7 +41,6 @@ router.post("/daily/ingest", async (req, res) => {
       }
     })
   );
-
   // Run all upserts in a single transaction
   const result = await prisma.$transaction(ops);
 

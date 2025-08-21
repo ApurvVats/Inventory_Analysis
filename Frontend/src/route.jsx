@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const route = axios.create({
-  baseURL: "https://witty-pond-0c0668400.2.azurestaticapps.net", 
+  baseURL: "https://apurv-analytics-app-2025-cwbzbyfgbcbpa6aq.centralindia-01.azurewebsites.net", 
   withCredentials: true,
 });
 // Optional helper: set/remove token globally
