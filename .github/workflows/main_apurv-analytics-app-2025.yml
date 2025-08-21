@@ -9,7 +9,7 @@ on:
 env:
   AZURE_WEBAPP_NAME: 'apurv-analytics-app-2025'
   NODE_VERSION: '22'
-  BACKEND_DIRECTORY: 'Backend' # Define the directory for reusability
+  BACKEND_DIRECTORY: 'Backend'
 
 jobs:
   build:
@@ -32,9 +32,9 @@ jobs:
           npm run build --if-present
 
       - name: '4. Upload Artifact'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Changed from v3 to v4
         with:
-          name: node-app-package # A name for your artifact
+          name: node-app-package
           path: ${{ env.BACKEND_DIRECTORY }}
           
   deploy:
@@ -47,9 +47,8 @@ jobs:
       id-token: write
       contents: read
     steps:
-      # Step 1: Download the artifact from the build job
       - name: '1. Download Artifact'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4 # Changed from v3 to v4
         with:
           name: node-app-package
           path: ${{ env.BACKEND_DIRECTORY }}
