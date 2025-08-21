@@ -18,6 +18,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
+app.options("*", cors());
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads")); // Serve static files if needed
