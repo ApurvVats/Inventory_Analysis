@@ -62,7 +62,9 @@ jobs:
 
       - name: '3. Run Database Migrations'
         working-directory: ${{ env.BACKEND_DIRECTORY }}
-        run: npx prisma migrate deploy
+        run: |
+          npm install prisma@${{ secrets.PRISMA_VERSION }} --save-dev
+          npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
