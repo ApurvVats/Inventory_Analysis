@@ -19,11 +19,11 @@ app.use("/uploads", express.static("uploads")); // Serve static files if needed
 
 // API Routes
 app.get("/", (_req, res) => res.json({ status: "ok", message: "Server is healthy" }));
-app.use("/api/auth", authRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/inventory", inventoryRoutes);
-app.use("/api/sales", salesRoutes);
-app.use('/api/marketing', marketingRoutes);
+app.use("/auth", authRoutes);
+app.use("/upload", uploadRoutes);
+app.use("/inventory", inventoryRoutes);
+app.use("/sales", salesRoutes);
+app.use("/marketing", marketingRoutes);
 
 // Server Start
 const PORT = process.env.PORT || 4000;
