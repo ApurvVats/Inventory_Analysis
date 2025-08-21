@@ -12,7 +12,11 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "https://witty-pond-0c0668400.2.azurestaticapps.net", credentials: true }));
+app.use(cors({ 
+  origin: "https://witty-pond-0c0668400.2.azurestaticapps.net", credentials: true 
+ methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads")); // Serve static files if needed
