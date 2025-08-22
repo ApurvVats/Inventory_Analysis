@@ -31,5 +31,5 @@ app.use("/sales", salesRoutes);
 app.use("/marketing", marketingRoutes);
 
 // Server Start
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
