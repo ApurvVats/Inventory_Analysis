@@ -19,7 +19,7 @@ export default function SalesTrend() {
   const load = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get("/api/sales/daily/trend", {
+      const { data } = await axios.get("/sales/daily/trend", {
         params: { days },
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { route } from "../../route"; // Your axios instance
+import { route,setAuthToken } from "../../route"; // Your axios instance
 
 // --- THUNKS ---
 
@@ -28,6 +28,7 @@ export const loginThunk = createAsyncThunk(
     try {
       const { data } = await route.post("/auth/login", { username, password });
       localStorage.setItem("token", data.token); // Persist token
+      setAuthToken(data.token);  // <--- add helper here
       return data; // returns { token, user }
     } catch (e) {
       return rejectWithValue(e.response?.data?.error || "Login failed");
