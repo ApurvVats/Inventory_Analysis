@@ -1,7 +1,6 @@
 import { Router } from "express";
 import authController from "../controllers/authController.js";
 import { authRequired } from "../middleware/auth.js"; // Make sure authRequired is imported
-
 const router = Router();
 router.post("/register", authController.register);
 router.post("/login", authController.login);
