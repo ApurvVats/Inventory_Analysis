@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom"; // Import Outlet
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import React from "react";
@@ -16,11 +16,21 @@ import SalesAnalysis from "./pages/SalesAnalysis";
 import Variations from "./pages/marketing/Variations";
 import MarketingWeekly from "./pages/marketing/WeeklyReport";
 import MarketingStats from "./pages/marketing/AccountStats";
-
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+const GOOGLE_CLIENT_ID = "334767179510-8bqnvirclht6st5bsd51fg9jjh2vfuvp.apps.googleusercontent.com";
+// This component protects routes that ONLY unauthenticated users should see.
+const PublicRoute = ({ token }) => {
+  return token ? <Navigate to="/" replace /> : <Outlet />;
+};
+// This component protects routes that ONLY authenticated users should see.
+const ProtectedRoute = ({ token }) => {
+  return token ? <Layout /> : <Navigate to="/login" replace />;
+};
 export default function App() {
   const dispatch = useDispatch();
   const token = useSelector((s) => s.auth.token);
-
   useEffect(() => {
     const t = localStorage.getItem("token");
     if (t && !token) {
@@ -28,51 +38,54 @@ export default function App() {
       dispatch(meThunk());
     }
   }, [dispatch, token]);
-
   return (
     <>
-      <Toaster />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        <Route
-          path="/"
-          element={token ? <Layout /> : <Navigate to="/login" replace />}
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="inventory">
-            <Route path="upload" element={<UploadPage />} />
-            <Route path="upload-vendor" element={<UploadPage />} />
-            <Route path="view" element={<InventoryView />} />
-            <Route path="analysis" element={<InventoryAnalysis />} />
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <Toaster />
+        <Routes>
+          {/* These routes are only accessible if the user is NOT logged in. */}
+          <Route element={<PublicRoute token={token} />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
-          <Route path="sales">
-            <Route path="upload" element={<UploadPage />} />
-            <Route path="daily-trend" element={<SalesTrend />} />
-            <Route path="analysis" element={<SalesAnalysis />} />
+          {/* These routes are only accessible if the user IS logged in. */}
+          <Route path="/" element={<ProtectedRoute token={token} />}>
+            <Route index element={<Dashboard />} />
+            <Route path="inventory">
+              <Route path="upload" element={<UploadPage />} />
+              <Route path="upload-vendor" element={<UploadPage />} />
+              <Route path="view" element={<InventoryView />} />
+              <Route path="analysis" element={<InventoryAnalysis />} />
+            </Route>
+            <Route path="sales">
+              <Route path="upload" element={<UploadPage />} />
+              <Route path="daily-trend" element={<SalesTrend />} />
+              <Route path="analysis" element={<SalesAnalysis />} />
+            </Route>
+            <Route path="marketing">
+              <Route path="variations" element={<Variations />} />
+              <Route path="upload" element={<UploadPage />} />
+              <Route path="weekly" element={<MarketingWeekly />} />
+              <Route path="stats" element={<MarketingStats />} />
+            </Route>
+            {/* legacy redirects */}
+            <Route
+              path="upload/inventory"
+              element={<Navigate to="/inventory/upload" replace />}
+            />
+            <Route
+              path="upload/marketing"
+              element={<Navigate to="/marketing/upload" replace />}
+            />
+            <Route
+              path="upload/sales"
+              element={<Navigate to="/sales/upload" replace />}
+            />
           </Route>
-          <Route path="marketing">
-            <Route path="variations" element={<Variations />} />
-            <Route path="upload" element={<UploadPage />} />
-            <Route path="weekly" element={<MarketingWeekly />} />
-            <Route path="stats" element={<MarketingStats />} />
-          </Route>
-          {/* legacy redirects */}
-          <Route
-            path="upload/inventory"
-            element={<Navigate to="/inventory/upload" replace />}
-          />
-          <Route
-            path="upload/marketing"
-            element={<Navigate to="/marketing/upload" replace />}
-          />
-          <Route
-            path="upload/sales"
-            element={<Navigate to="/sales/upload" replace />}
-          />
-        </Route>
-      </Routes>
+        </Routes>
+      </GoogleOAuthProvider>
     </>
   );
 }

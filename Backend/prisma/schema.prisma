@@ -11,7 +11,7 @@ model User {
   id           String    @id @default(cuid())
   username     String    @unique
   email        String    @unique
-  passwordHash String
+  passwordHash String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -42,7 +42,14 @@ model Upload {
 
   @@index([userId, type])
 }
-
+model Otp {
+  id        String      @id @default(cuid())
+  email     String
+  otpHash   String
+  expiresAt DateTime
+  type      String   // "REGISTER" or "RESET_PASSWORD"
+  @@index([email, type]) // Add an index for faster lookups
+}
 model Product {
   id          String    @id @default(cuid())
   asin        String

@@ -10,10 +10,12 @@ import marketingRoutes from './routes/marketing.js';
 
 dotenv.config();
 const app = express();
+const localFrontendURL = 'http://localhost:5173'; // Vite ka default port
+const deployedFrontendURL = 'https://witty-pond-0c0668400.2.azurestaticapps.net';
 
 // Middleware
 app.use(cors({
-  origin: "https://witty-pond-0c0668400.2.azurestaticapps.net",
+  origin: [localFrontendURL, deployedFrontendURL], // Dono ko allow karo
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -31,5 +33,5 @@ app.use("/sales", salesRoutes);
 app.use("/marketing", marketingRoutes);
 
 // Server Start
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

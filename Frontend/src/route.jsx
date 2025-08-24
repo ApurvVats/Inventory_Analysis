@@ -1,8 +1,11 @@
 import axios from "axios";
-
+const isProduction = process.env.NODE_ENV === 'production';
+const baseURL = isProduction
+  ? "https://apurv-analytics-app-2025-cwbzbyfgbcbpa6aq.centralindia-01.azurewebsites.net"
+  : "/";
 export const route = axios.create({
-  baseURL: "https://apurv-analytics-app-2025-cwbzbyfgbcbpa6aq.centralindia-01.azurewebsites.net", 
-  withCredentials: true,
+  baseURL: baseURL,
+  withCredentials: true,
 });
 route.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
