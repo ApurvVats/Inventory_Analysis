@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import React from "react";
 export default function UploadPage() {
   const { pathname } = useLocation();
-
   // Determine upload mode from URL
   const mode = useMemo(() => {
     if (pathname.includes("/marketing/upload")) return "marketing";
@@ -14,9 +13,7 @@ export default function UploadPage() {
     if (pathname.includes("/inventory/upload-vendor"))
       return "inventory_vendor";
     if (pathname.includes("/inventory/upload")) return "inventory";
-    return "inventory";
   }, [pathname]);
-
   // Configure per-mode labels and endpoints
   const cfg = useMemo(() => {
     switch (mode) {
@@ -82,7 +79,6 @@ export default function UploadPage() {
       toast.error(e?.response?.data?.error || "Upload failed");
     }
   };
-
   const refresh = async () => {
     const { data } = await route.get("/upload/mine");
     // Only show uploads of the active type in this screen
@@ -130,7 +126,6 @@ export default function UploadPage() {
         {mine.map((u) => (
           <li key={u.id}>
             {" "}
-            {/* <-- ADD THIS KEY PROP */}
             {u.type} | {new Date(u.createdAt).toLocaleString()} | {u.status}
           </li>
         ))}

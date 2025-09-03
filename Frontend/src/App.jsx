@@ -1,25 +1,30 @@
-import { Routes, Route, Navigate, Outlet } from "react-router-dom"; // Import Outlet
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import React from "react";
 import { setToken, meThunk } from "./store/slices/authSlice";
 import Layout from "./components/Layout";
+import { Toaster } from "react-hot-toast";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+// --- Page Imports ---
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import UploadPage from "./pages/UploadPage";
 import InventoryView from "./pages/InventoryView";
 import InventoryAnalysis from "./pages/InventoryAnalysis";
-import { Toaster } from "react-hot-toast";
 import SalesTrend from "./pages/SalesTrend";
 import SalesAnalysis from "./pages/SalesAnalysis";
 import Variations from "./pages/marketing/Variations";
 import MarketingWeekly from "./pages/marketing/WeeklyReport";
 import MarketingStats from "./pages/marketing/AccountStats";
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-const GOOGLE_CLIENT_ID = "334767179510-8bqnvirclht6st5bsd51fg9jjh2vfuvp.apps.googleusercontent.com";
+import ExplorePage from "./pages/demand/ExplorePage";
+import ManageReportsPage from "./pages/demand/ManageReportsPage";
+import ReportDetailPage from "./pages/demand/ReportDetailPage";
+const GOOGLE_CLIENT_ID =
+  "334767179510-8bqnvirclht6st5bsd51fg9jjh2vfuvp.apps.googleusercontent.com";
 // This component protects routes that ONLY unauthenticated users should see.
 const PublicRoute = ({ token }) => {
   return token ? <Navigate to="/" replace /> : <Outlet />;
@@ -43,19 +48,16 @@ export default function App() {
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <Toaster />
         <Routes>
-          {/* These routes are only accessible if the user is NOT logged in. */}
           <Route element={<PublicRoute token={token} />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
-          {/* These routes are only accessible if the user IS logged in. */}
           <Route path="/" element={<ProtectedRoute token={token} />}>
             <Route index element={<Dashboard />} />
             <Route path="inventory">
               <Route path="upload" element={<UploadPage />} />
-              <Route path="upload-vendor" element={<UploadPage />} />
               <Route path="view" element={<InventoryView />} />
               <Route path="analysis" element={<InventoryAnalysis />} />
             </Route>
@@ -70,7 +72,11 @@ export default function App() {
               <Route path="weekly" element={<MarketingWeekly />} />
               <Route path="stats" element={<MarketingStats />} />
             </Route>
-            {/* legacy redirects */}
+            <Route path="demand">
+              <Route path='explore' element={<ExplorePage />} />
+              <Route path="reports" element={<ManageReportsPage />} />
+              <Route path="reports/:reportId" element={<ReportDetailPage />} />
+            </Route>
             <Route
               path="upload/inventory"
               element={<Navigate to="/inventory/upload" replace />}

@@ -31,12 +31,18 @@ jobs:
           npm install
           npm run build --if-present
 
-      - name: '4. Upload Artifact'
-        uses: actions/upload-artifact@v4 # Changed from v3 to v4
+      - name: '4. Upload Artifact for Deployment'
+        uses: actions/upload-artifact@v4
         with:
           name: node-app-package
-          path: ${{ env.BACKEND_DIRECTORY }}
-          
+          path: |
+            ${{ env.BACKEND_DIRECTORY }}/dist
+            ${{ env.BACKEND_DIRECTORY }}/node_modules
+            ${{ env.BACKEND_DIRECTORY }}/package.json
+            ${{ env.BACKEND_DIRECTORY }}/package-lock.json
+            ${{ env.BACKEND_DIRECTORY }}/ecosystem.config.js
+            ${{ env.BACKEND_DIRECTORY }}/prisma
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -48,10 +54,10 @@ jobs:
       contents: read
     steps:
       - name: '1. Download Artifact'
-        uses: actions/download-artifact@v4 # Changed from v3 to v4
+        uses: actions/download-artifact@v4
         with:
           name: node-app-package
-          path: ${{ env.BACKEND_DIRECTORY }}
+          path: .
 
       - name: '2. Login to Azure'
         uses: azure/login@v2
@@ -61,10 +67,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_198C34FCABB4466E862601E08DB285F0 }}
 
       - name: '3. Run Database Migrations'
-        working-directory: ${{ env.BACKEND_DIRECTORY }}
-        run: |
-          npm install prisma@${{ secrets.PRISMA_VERSION }} --save-dev
-          npx prisma migrate deploy
+        run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -73,4 +76,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ${{ env.BACKEND_DIRECTORY }}
+          package: .
+          startup-command: 'npm start' # Explicitly tell Azure to run your pm2 start script
+
