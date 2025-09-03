@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, NavLink, useLocation,useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import "./Layout.css";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutThunk } from "../store/slices/authSlice";
+import { connectSocket, disconnectSocket } from "../socket";
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState(() => {
@@ -10,17 +11,25 @@ export default function Layout() {
       const raw = sessionStorage.getItem("nav_open_groups");
       return raw
         ? JSON.parse(raw)
-        : { inventory: true, sales: true, marketing: true, insights: true };
+        : { inventory: true, sales: true, marketing: true, demand: true };
     } catch {
-      return { inventory: true, sales: true, marketing: true, insights: true };
+      return { inventory: true, sales: true, marketing: true, demand: true };
     }
   });
+
   const [menuOpen, setMenuOpen] = useState(false);
-    const { user } = useSelector((s) => s.auth);
+  const { user } = useSelector((s) => s.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-
+  const { pathname } = useLocation();
+useEffect(() => {
+    if (user) {
+      connectSocket();
+    }
+    return () => {
+      disconnectSocket();
+    };
+  }, [user]); 
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
@@ -30,17 +39,10 @@ export default function Layout() {
     navigate('/login');
   };
 
-  if (!user) {
-    // This can be a loading spinner or null while the user is being fetched.
-    return <div>Loading User...</div>;
-  }
-  const { pathname } = useLocation();
-
   useEffect(() => {
     sessionStorage.setItem("nav_open_groups", JSON.stringify(open));
   }, [open]);
 
-  // Auto-open the relevant group and expand the sidebar on route change
   useEffect(() => {
     if (pathname.startsWith("/inventory")) {
       setOpen((s) => ({ ...s, inventory: true }));
@@ -51,19 +53,19 @@ export default function Layout() {
     } else if (pathname.startsWith("/marketing")) {
       setOpen((s) => ({ ...s, marketing: true }));
       if (collapsed) setCollapsed(false);
-    } else if (
-      pathname.startsWith("/demand-analysis") ||
-      pathname.startsWith("/brand-analysis")
-    ) {
-      setOpen((s) => ({ ...s, insights: true }));
+    } else if (pathname.startsWith("/demand")) {
+      setOpen((s) => ({ ...s, demand: true }));
       if (collapsed) setCollapsed(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  if (!user) {
+    return <div>Loading User...</div>;
+  }
 
   return (
     <div className={`sh-app ${collapsed ? "is-collapsed" : ""}`}>
-      {/* Sidebar */}
       <aside className="sh-sidebar">
         <div className="sh-sb-header">
           <button
@@ -85,7 +87,6 @@ export default function Layout() {
         </div>
 
         <nav className="sh-nav">
-          {/* Inventory */}
           <button
             type="button"
             className={`sh-group ${open.inventory ? "is-open" : ""}`}
@@ -102,45 +103,24 @@ export default function Layout() {
             </span>
           </button>
           <div className={`sh-sub ${open.inventory ? "is-open" : ""}`}>
-            <NavLink
-              to="/inventory/upload"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/inventory/upload" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">⬆️</span>
               <span className="sh-label">Upload Inventory</span>
             </NavLink>
-            <NavLink
-              to="/inventory/upload-vendor"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/inventory/upload-vendor" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">🏭</span>
               <span className="sh-label">Upload Vendor Report</span>
             </NavLink>
-            <NavLink
-              to="/inventory/view"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/inventory/view" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">📊</span>
               <span className="sh-label">View Report</span>
             </NavLink>
-            <NavLink
-              to="/inventory/analysis"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/inventory/analysis" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">🧠</span>
               <span className="sh-label">Inventory Analysis</span>
             </NavLink>
           </div>
 
-          {/* Sales */}
           <button
             type="button"
             className={`sh-group ${open.sales ? "is-open" : ""}`}
@@ -157,36 +137,20 @@ export default function Layout() {
             </span>
           </button>
           <div className={`sh-sub ${open.sales ? "is-open" : ""}`}>
-            <NavLink
-              to="/sales/upload"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/sales/upload" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">🧾</span>
               <span className="sh-label">Upload Sales</span>
             </NavLink>
-            <NavLink
-              to="/sales/daily-trend"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/sales/daily-trend" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">📅</span>
               <span className="sh-label">Daily Sales Performance</span>
             </NavLink>
-            <NavLink
-              to="/sales/analysis"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/sales/analysis" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">📈</span>
               <span className="sh-label">Sales Analysis</span>
             </NavLink>
           </div>
 
-          {/* Marketing */}
           <button
             type="button"
             className={`sh-group ${open.marketing ? "is-open" : ""}`}
@@ -203,83 +167,59 @@ export default function Layout() {
             </span>
           </button>
           <div className={`sh-sub ${open.marketing ? "is-open" : ""}`}>
-            <NavLink
-              to="/marketing/variations"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/marketing/variations" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">🧬</span>
               <span className="sh-label">Manage Variations</span>
             </NavLink>
-            <NavLink
-              to="/marketing/upload"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/marketing/upload" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">🗂️</span>
               <span className="sh-label">Upload Report</span>
             </NavLink>
-            <NavLink
-              to="/marketing/weekly"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/marketing/weekly" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">📅</span>
               <span className="sh-label">Weekly Report</span>
             </NavLink>
-            <NavLink
-              to="/marketing/stats"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
-            >
+            <NavLink to="/marketing/stats" className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}>
               <span className="sh-ico">📊</span>
               <span className="sh-label">Account Stats</span>
             </NavLink>
           </div>
 
-          {/* Insights */}
           <button
             type="button"
-            className={`sh-group ${open.insights ? "is-open" : ""}`}
+            className={`sh-group ${open.demand ? "is-open" : ""}`}
             onClick={() => {
               if (collapsed) setCollapsed(false);
-              setOpen((s) => ({ ...s, insights: !s.insights }));
+              setOpen((s) => ({ ...s, demand: !s.demand }));
             }}
-            aria-expanded={open.insights}
+            aria-expanded={open.demand}
           >
-            <span className="sh-ico">🧩</span>
-            <span className="sh-label">Insights</span>
+            <span className="sh-ico">💡</span>
+            <span className="sh-label">Demand Analysis</span>
             <span className="sh-caret" aria-hidden>
-              {open.insights ? "▾" : "▸"}
+              {open.demand ? "▾" : "▸"}
             </span>
           </button>
-          <div className={`sh-sub ${open.insights ? "is-open" : ""}`}>
+          <div className={`sh-sub ${open.demand ? "is-open" : ""}`}>
             <NavLink
-              to="/demand-analysis"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
+              to="/demand/explore"
+              className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}
             >
-              <span className="sh-ico">📈</span>
-              <span className="sh-label">Demand Analysis</span>
+              <span className="sh-ico">🔍</span>
+              <span className="sh-label">Explore Categories</span>
             </NavLink>
             <NavLink
-              to="/brand-analysis"
-              className={({ isActive }) =>
-                `sh-link ${isActive ? "is-active" : ""}`
-              }
+              to="/demand/reports"
+              className={({ isActive }) => `sh-link ${isActive ? "is-active" : ""}`}
             >
-              <span className="sh-ico">🏷️</span>
-              <span className="sh-label">Brand Analysis</span>
+              <span className="sh-ico">📋</span>
+              <span className="sh-label">Manage Reports</span>
             </NavLink>
           </div>
         </nav>
       </aside>
-<div className="sh-main-content-wrapper">
+
+      <div className="sh-main-content-wrapper">
         <header className="sh-top-header">
           <div className="sh-top-header-left" />
           <div className="sh-top-header-right">
@@ -304,11 +244,11 @@ export default function Layout() {
             </div>
           </div>
         </header>
-      {/* Content */}
-      <main className="sh-content">
-        <Outlet />
-      </main>
-    </div>
+        <main className="sh-content">
+          <Outlet />
+        </main>
+      </div>
+
       <aside className="sh-chat">
         <div className="sh-chat-h">Chatbot</div>
         <div className="sh-chat-b">
@@ -318,7 +258,6 @@ export default function Layout() {
           className="sh-chat-f"
           onSubmit={(e) => {
             e.preventDefault();
-            // hook send here
           }}
         >
           <input
@@ -327,7 +266,6 @@ export default function Layout() {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                // trigger send here
               }
             }}
           />

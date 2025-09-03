@@ -1,25 +1,15 @@
-// routes/marketing.js
 import express from 'express';
-import multer from 'multer';
-import {authRequired } from '../middleware/auth.js';
+import { authRequired } from '../middleware/auth.js';
+import upload from "../middleware/fileUpload.js"; // Naya, centralized Azure middleware
 import {
   createVariation, listVariations, getVariation, updateVariation, deleteVariation,
   uploadMarketing
 } from '../controllers/marketingController.js';
-
 const router = express.Router();
-const upload = multer({ dest: process.env.UPLOAD_DIR || 'uploads' });
-
-router.use(authRequired);
-
-// Variations
-router.post('/variations', createVariation);
-router.get('/variations', listVariations);
-router.get('/variations/:id', getVariation);
-router.patch('/variations/:id', updateVariation);
-router.delete('/variations/:id', deleteVariation);
-
-// Marketing upload
-router.post('/upload', upload.single('file'), uploadMarketing);
-
+router.post('/variations', authRequired, createVariation);
+router.get('/variations', authRequired, listVariations);
+router.get('/variations/:id', authRequired, getVariation);
+router.patch('/variations/:id', authRequired, updateVariation);
+router.delete('/variations/:id', authRequired, deleteVariation);
+router.post('/upload', authRequired, upload.single('file'), uploadMarketing);
 export default router;

@@ -51,7 +51,7 @@ export const loginThunk = createAsyncThunk(
   async ({ username, password }, { rejectWithValue }) => {
     try {
       const { data } = await route.post("/auth/login", { username, password });
-      localStorage.setItem("token", data.token); // Persist token
+      localStorage.setItem("token", data.token); 
       setAuthToken(data.token);  // <--- add helper here
       return data; // returns { token, user }
     } catch (e) {
@@ -177,6 +177,5 @@ const authSlice = createSlice({
       });
   },
 });
-
 export const { setToken } = authSlice.actions;
 export default authSlice.reducer;

@@ -9,7 +9,9 @@ export default defineConfig({
       '/upload': 'http://localhost:4000',
       '/inventory': 'http://localhost:4000',
       '/sales': 'http://localhost:4000',
-      '/marketing': 'http://localhost:4000'
+      '/marketing': 'http://localhost:4000',
+      '/demand':'http://localhost:4000',
+      '/reports':'http://localhost:4000'
     }
   }
 })

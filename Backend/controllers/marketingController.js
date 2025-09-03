@@ -1,7 +1,5 @@
-import fs from 'fs';
 import { prisma } from '../db/prisma.js';
-import { processMarketingUpload } from '../services/marketingService.js'; // This service must be converted to Prisma
-
+import * as marketingService from '../services/marketingService.js';
 /* Variations CRUD */
 export async function createVariation(req, res, next) {
   try {
@@ -22,7 +20,6 @@ export async function createVariation(req, res, next) {
     res.status(201).json(variation);
   } catch (e) { next(e); }
 }
-
 export async function listVariations(req, res, next) {
   try {
     const { search = '', page = 1, limit = 20, active } = req.query;
@@ -56,7 +53,6 @@ export async function listVariations(req, res, next) {
     res.json({ items, total, page: Number(page), limit: Number(limit) });
   } catch (e) { next(e); }
 }
-
 export async function getVariation(req, res, next) {
   try {
     const variation = await prisma.variation.findFirst({
@@ -67,12 +63,10 @@ export async function getVariation(req, res, next) {
     res.json(variation);
   } catch (e) { next(e); }
 }
-
 export async function updateVariation(req, res, next) {
   try {
     const { name, code, items, tags, active } = req.body;
     const variationId = req.params.id;
-
     const updatedVariation = await prisma.$transaction(async (tx) => {
       await tx.variationItem.deleteMany({ where: { variationId } });
       const v = await tx.variation.update({
@@ -94,7 +88,6 @@ export async function updateVariation(req, res, next) {
     next(e);
   }
 }
-
 export async function deleteVariation(req, res, next) {
   try {
     await prisma.variation.update({
@@ -107,40 +100,37 @@ export async function deleteVariation(req, res, next) {
     next(e);
   }
 }
-
-/* Marketing upload */
 export async function uploadMarketing(req, res, next) {
   try {
-    if (!req.file) return res.status(400).json({ error: 'file required' });
+    if (!req.file) {
+      return res.status(400).json({ error: "File is required." });
+    }
     const { dateStart, dateEnd } = req.body || {};
-
     const upload = await prisma.upload.create({
       data: {
         userId: req.user.id,
         type: 'marketing',
         filename: req.file.originalname,
-        path: req.file.path,
-        status: 'processing',
+        path: req.file.url, 
+        status: 'pending',
         meta: { dateStart, dateEnd }
       }
     });
-
-    const result = await processMarketingUpload({
+    marketingService.processMarketingUpload({
+      uploadId: upload.id,
       userId: req.user.id,
-      filePath: req.file.path,
+      fileUrl: req.file.url,
       dateStart,
       dateEnd
+    }).catch(err => {
+      console.error(`BACKGROUND_PROCESSING_FAILED for marketing upload ${upload.id}:`, err);
+    });
+    res.status(202).json({
+      message: "Marketing file accepted and is being processed.",
+      uploadId: upload.id
     });
 
-    await prisma.upload.update({
-      where: { id: upload.id },
-      data: {
-        status: 'processed',
-        meta: { ...(upload.meta || {}), ...result }
-      }
-    });
-
-    try { fs.unlinkSync(req.file.path); } catch {}
-    res.json({ ok: true, ...result });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 }
