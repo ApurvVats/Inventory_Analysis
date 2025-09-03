@@ -33,7 +33,7 @@ jobs:
 
       - name: '4. Sync Database Schema'
         working-directory: ${{ env.BACKEND_DIRECTORY }}
-        run: npx prisma db push
+        run: npx prisma db push --accept-data-loss
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
