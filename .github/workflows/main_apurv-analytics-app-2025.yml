@@ -31,9 +31,9 @@ jobs:
           npm install
           npm run build --if-present
 
-      - name: '4. Run Database Migrations'
+      - name: '4. Sync Database Schema'
         working-directory: ${{ env.BACKEND_DIRECTORY }}
-        run: npx prisma migrate deploy
+        run: npx prisma db push
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
