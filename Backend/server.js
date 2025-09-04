@@ -11,7 +11,7 @@ import salesRoutes from './routes/sales.js';
 import marketingRoutes from './routes/marketing.js';
 import { initializeWebsockets, getIO } from './config/websockets.js';
 // Ensure the worker starts listening for jobs when the server starts
-import './workers/demandAnalysisWorker.js';
+// import './workers/demandAnalysisWorker.js';
 import demandRoutes from './routes/demand.js'; // NEW: The only route for demand analysis
 const app = express();
 const httpServer = http.createServer(app);
