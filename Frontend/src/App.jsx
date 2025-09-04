@@ -58,6 +58,7 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="inventory">
               <Route path="upload" element={<UploadPage />} />
+              <Route path="upload-vendor" element={<UploadPage />} />
               <Route path="view" element={<InventoryView />} />
               <Route path="analysis" element={<InventoryAnalysis />} />
             </Route>
@@ -73,7 +74,7 @@ export default function App() {
               <Route path="stats" element={<MarketingStats />} />
             </Route>
             <Route path="demand">
-              <Route path='explore' element={<ExplorePage />} />
+              <Route path="explore" element={<ExplorePage />} />
               <Route path="reports" element={<ManageReportsPage />} />
               <Route path="reports/:reportId" element={<ReportDetailPage />} />
             </Route>
