@@ -25,24 +25,17 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ${{ env.BACKEND_DIRECTORY }}/package-lock.json
 
-      - name: 3) Install Dependencies & Build
+      - name: 3) Install Dependencies & Generate Prisma Client
         working-directory: ${{ env.BACKEND_DIRECTORY }}
         run: |
           npm install
-          npm run build --if-present
+          npx prisma generate
 
-      - name: 4) Upload Artifact
+      - name: 4) Upload Artifact (entire backend folder)
         uses: actions/upload-artifact@v4
         with:
-          name: node-app-package
-          path: |
-            ${{ env.BACKEND_DIRECTORY }}/dist
-            ${{ env.BACKEND_DIRECTORY }}/node_modules
-            ${{ env.BACKEND_DIRECTORY }}/package.json
-            ${{ env.BACKEND_DIRECTORY }}/package-lock.json
-            ${{ env.BACKEND_DIRECTORY }}/ecosystem.config.js
-            ${{ env.BACKEND_DIRECTORY }}/prisma
-            ${{ env.BACKEND_DIRECTORY }}/server.js
+          name: backend-app-package
+          path: ${{ env.BACKEND_DIRECTORY }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -57,7 +50,7 @@ jobs:
       - name: 1) Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-app-package
+          name: backend-app-package
           path: ./release
 
       - name: 2) Login to Azure
@@ -67,11 +60,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_70F3721AED054CBA99744E8457234734 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_198C34FCABB4466E862601E08DB285F0 }}
 
-      - name: 3) Install Prisma CLI (ensure available in deploy job)
+      - name: 3) Install Prisma CLI in Release
         working-directory: ./release
         run: npm install prisma @prisma/client --omit=dev
 
-      - name: 4) Run Prisma migrations (production)
+      - name: 4) Run Prisma Migrations (Production DB)
         working-directory: ./release
         run: npx prisma migrate deploy
         env:
