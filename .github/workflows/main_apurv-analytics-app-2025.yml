@@ -34,12 +34,12 @@ jobs:
       - name: 4) Verify PM2 Configuration
         working-directory: ${{ env.BACKEND_DIRECTORY }}
         run: |
-          echo "Checking for ecosystem.config.js..."
-          if [ -f "ecosystem.config.js" ]; then
-            echo "✅ ecosystem.config.js found"
-            cat ecosystem.config.js
+          echo "Checking for ecosystem.config.cjs..."
+          if [ -f "ecosystem.config.cjs" ]; then
+            echo "✅ ecosystem.config.cjs found"
+            cat ecosystem.config.cjs
           else
-            echo "❌ ecosystem.config.js not found!"
+            echo "❌ ecosystem.config.cjs not found!"
             exit 1
           fi
 
@@ -79,7 +79,7 @@ jobs:
           echo "📁 Package.json exists: $([ -f package.json ] && echo "✅ Yes" || echo "❌ No")"
           echo "📁 Server.js exists: $([ -f server.js ] && echo "✅ Yes" || echo "❌ No")"
           echo "📁 Workers directory exists: $([ -d workers ] && echo "✅ Yes" || echo "❌ No")"
-          echo "📁 Ecosystem.config.js exists: $([ -f ecosystem.config.js ] && echo "✅ Yes" || echo "❌ No")"
+          echo "📁 Ecosystem.config.cjs exists: $([ -f ecosystem.config.js ] && echo "✅ Yes" || echo "❌ No")"
           echo "📁 Node_modules exists: $([ -d node_modules ] && echo "✅ Yes" || echo "❌ No")"
 
       - name: 4) Install Production Dependencies
@@ -100,6 +100,6 @@ jobs:
         run: |
           echo "🚀 Deployment completed!"
           echo "📋 Startup command: npm start"
-          echo "🔧 This runs: prisma migrate deploy && pm2-runtime start ecosystem.config.js"
+          echo "🔧 This runs: prisma migrate deploy && pm2-runtime start ecosystem.config.cjs"
           echo "📊 Expected processes: web-server + demand-worker"
           echo "🌐 App URL: ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
