@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "scripts": {
-  "start": "npx prisma migrate deploy && pm2-runtime start ecosystem.config.js",
+ "scripts": {
+  "start": "pm2-runtime start ecosystem.config.js",
   "dev": "nodemon server.js",
   "build": "npx prisma generate",
+  "migrate": "npx prisma migrate deploy",
   "worker": "node -r dotenv/config workers/demandAnalysisWorker.js"
 },
   "keywords": [],
