@@ -85,18 +85,10 @@ jobs:
       - name: 4) Install Production Dependencies
         working-directory: ./release
         run: |
-          # Install any missing dependencies (just in case)
           npm install --production
-          # Ensure pm2 is available
           npm list pm2 || npm install pm2
 
-      - name: 5) Run Prisma Migrations (Production DB)
-        working-directory: ./release
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: 6) Deploy to Azure Web App
+      - name: 5) Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
@@ -104,10 +96,10 @@ jobs:
           package: ./release
           startup-command: 'npm start'
 
-      - name: 7) Post-Deployment Verification
+      - name: 6) Post-Deployment Verification
         run: |
           echo "🚀 Deployment completed!"
           echo "📋 Startup command: npm start"
-          echo "🔧 This will run: pm2-runtime start ecosystem.config.js"
+          echo "🔧 This runs: prisma migrate deploy && pm2-runtime start ecosystem.config.js"
           echo "📊 Expected processes: web-server + demand-worker"
           echo "🌐 App URL: ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
