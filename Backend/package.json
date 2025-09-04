@@ -4,12 +4,12 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    
-    "start": "node server.js",
+    "start": "pm2-runtime start ecosystem.config.js",
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx prisma generate",
     "worker": "node -r dotenv/config workers/demandAnalysisWorker.js"
+    
   },
   "keywords": [],
   "author": "",

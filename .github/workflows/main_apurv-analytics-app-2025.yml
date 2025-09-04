@@ -31,7 +31,19 @@ jobs:
           npm install
           npx prisma generate
 
-      - name: 4) Upload Artifact (entire backend folder)
+      - name: 4) Verify PM2 Configuration
+        working-directory: ${{ env.BACKEND_DIRECTORY }}
+        run: |
+          echo "Checking for ecosystem.config.js..."
+          if [ -f "ecosystem.config.js" ]; then
+            echo "✅ ecosystem.config.js found"
+            cat ecosystem.config.js
+          else
+            echo "❌ ecosystem.config.js not found!"
+            exit 1
+          fi
+
+      - name: 5) Upload Artifact (entire backend folder)
         uses: actions/upload-artifact@v4
         with:
           name: backend-app-package
@@ -60,20 +72,42 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_70F3721AED054CBA99744E8457234734 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_198C34FCABB4466E862601E08DB285F0 }}
 
-      - name: 3) Install Prisma CLI in Release
+      - name: 3) Verify Deployment Package
         working-directory: ./release
-        run: npm install prisma @prisma/client --omit=dev
+        run: |
+          echo "Verifying deployment package contents..."
+          echo "📁 Package.json exists: $([ -f package.json ] && echo "✅ Yes" || echo "❌ No")"
+          echo "📁 Server.js exists: $([ -f server.js ] && echo "✅ Yes" || echo "❌ No")"
+          echo "📁 Workers directory exists: $([ -d workers ] && echo "✅ Yes" || echo "❌ No")"
+          echo "📁 Ecosystem.config.js exists: $([ -f ecosystem.config.js ] && echo "✅ Yes" || echo "❌ No")"
+          echo "📁 Node_modules exists: $([ -d node_modules ] && echo "✅ Yes" || echo "❌ No")"
 
-      - name: 4) Run Prisma Migrations (Production DB)
+      - name: 4) Install Production Dependencies
+        working-directory: ./release
+        run: |
+          # Install any missing dependencies (just in case)
+          npm install --production
+          # Ensure pm2 is available
+          npm list pm2 || npm install pm2
+
+      - name: 5) Run Prisma Migrations (Production DB)
         working-directory: ./release
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: 5) Deploy to Azure Web App
+      - name: 6) Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: ./release
           startup-command: 'npm start'
+
+      - name: 7) Post-Deployment Verification
+        run: |
+          echo "🚀 Deployment completed!"
+          echo "📋 Startup command: npm start"
+          echo "🔧 This will run: pm2-runtime start ecosystem.config.js"
+          echo "📊 Expected processes: web-server + demand-worker"
+          echo "🌐 App URL: ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
