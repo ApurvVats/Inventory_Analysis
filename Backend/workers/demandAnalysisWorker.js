@@ -1,36 +1,34 @@
-import 'dotenv/config';
-dotenv.config();
-import { Worker } from 'bullmq';
-import { PrismaClient } from '@prisma/client';
-import { redisConnection } from '../config/redis.js';
-import { getBestSellersByCategoryId } from '../services/oxylabsService.js';
-import { fetchSalesDataInChunks } from '../services/jungleScoutService.js';
-import { aggregateAnalytics } from '../services/analyticsEngine.js';
+import "dotenv/config";
+import { Worker } from "bullmq";
+import { PrismaClient } from "@prisma/client";
+import { redisConnection } from "../config/redis.js";
+import { getBestSellersByCategoryId } from "../services/oxylabsService.js";
+import { fetchSalesDataInChunks } from "../services/jungleScoutService.js";
+import { aggregateAnalytics } from "../services/analyticsEngine.js";
 
 const prisma = new PrismaClient();
 
 const worker = new Worker(
-  'demandAnalysisQueue',
+  "demandAnalysisQueue",
   async (job) => {
     const { reportId, categoryAnalyticsId, categoryId } = job.data;
-    const io = job.queue.opts.io;
 
-    const updateProgress = async (progress, status = 'GENERATING') => {
+    const updateProgress = async (progress, status = "GENERATING") => {
       await prisma.demandReport.update({
         where: { id: reportId },
         data: { progress, status },
       });
       await job.updateProgress(progress);
-      if (io) io.emit('report_update', { reportId, status, progress });
+      // removed io emit because not passed to worker
     };
 
     try {
-      await updateProgress(10, 'GENERATING');
+      await updateProgress(10, "GENERATING");
 
-      // --- Step A: Check DB first ---
+      // --- Step A: DB or API fetch ---
       let bestSellerProducts = await prisma.bestSellingAsin.findMany({
         where: { categoryAnalyticsId },
-        orderBy: { rank: 'asc' },
+        orderBy: { rank: "asc" },
       });
 
       if (!bestSellerProducts || bestSellerProducts.length === 0) {
@@ -38,14 +36,14 @@ const worker = new Worker(
         const apiProducts = await getBestSellersByCategoryId(categoryId);
 
         if (!apiProducts || apiProducts.length === 0) {
-          throw new Error('Oxylabs returned no best sellers for the given category ID.');
+          throw new Error("Oxylabs returned no best sellers for the given category ID.");
         }
 
         const productsToCreate = apiProducts.map((p, index) => ({
           categoryAnalyticsId,
           rank: p.rank || index + 1,
           asin: p.asin,
-          title: p.title || 'N/A',
+          title: p.title || "N/A",
           imageUrl: p.image || null,
           price: p.price || null,
           rating: p.rating || null,
@@ -59,7 +57,7 @@ const worker = new Worker(
 
         bestSellerProducts = await prisma.bestSellingAsin.findMany({
           where: { categoryAnalyticsId },
-          orderBy: { rank: 'asc' },
+          orderBy: { rank: "asc" },
         });
       } else {
         console.log(`[DB] HIT! Found ${bestSellerProducts.length} products in DB. Skipping API.`);
@@ -103,17 +101,14 @@ const worker = new Worker(
 
       await prisma.demandReport.update({
         where: { id: reportId },
-        data: { status: 'COMPLETED', progress: 100, completedAt: new Date() },
+        data: { status: "COMPLETED", progress: 100, completedAt: new Date() },
       });
-
-      if (io) io.emit('report_update', { reportId, status: 'COMPLETED', progress: 100 });
     } catch (error) {
       console.error(`[Worker] Job ${job.id} FAILED for report ${reportId}:`, error);
       await prisma.demandReport.update({
         where: { id: reportId },
-        data: { status: 'FAILED' },
+        data: { status: "FAILED" },
       });
-      if (io) io.emit('report_update', { reportId, status: 'FAILED' });
       throw error;
     }
   },
@@ -122,8 +117,7 @@ const worker = new Worker(
     concurrency: 5,
   }
 );
-worker.on('completed', (job) => console.log(`[Worker] Job ${job.id} completed.`));
-worker.on('failed', (job, err) =>
-  console.error(`[Worker] Job ${job.id} failed:`, err)
-);
+
+worker.on("completed", (job) => console.log(`[Worker] Job ${job.id} completed.`));
+worker.on("failed", (job, err) => console.error(`[Worker] Job ${job.id} failed:`, err));
 export default worker;
