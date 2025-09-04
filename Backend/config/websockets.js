@@ -5,8 +5,6 @@ import { createAdapter } from "@socket.io/redis-adapter";
 let io;
 
 export function initializeWebsockets(httpServer, allowedOrigins) {
-    // --- THIS IS THE FIX ---
-    // The configuration options must be nested inside a 'cors' property.
     io = new Server(httpServer, {
         cors: {
             origin: allowedOrigins, // Use the same list of origins from your main server.js

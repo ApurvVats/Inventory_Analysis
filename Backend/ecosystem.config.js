@@ -1,6 +1,6 @@
 // ecosystem.config.js
 import dotenv from 'dotenv';
-dotenv.config(); // Load env variables for PM2
+dotenv.config();
 
 export default {
   apps: [
@@ -9,7 +9,7 @@ export default {
       script: './server.js',
       instances: 1,
       exec_mode: 'cluster',
-      node_args: '--experimental-specifier-resolution=node',
+      node_args: '--loader ts-node/esm',
       env: {
         NODE_ENV: 'production',
         DATABASE_URL: process.env.DATABASE_URL,
@@ -24,11 +24,12 @@ export default {
       exec_mode: 'fork',
       autorestart: true,
       max_restarts: 10,
-      node_args: '--experimental-specifier-resolution=node',
+      node_args: '--loader ts-node/esm',
       env: {
         NODE_ENV: 'production',
         DATABASE_URL: process.env.DATABASE_URL,
         CLIENT_URL: process.env.CLIENT_URL,
+        REDIS_URL: process.env.REDIS_URL,
       },
     },
   ],
