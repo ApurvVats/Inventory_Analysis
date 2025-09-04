@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-  "start": "prisma migrate deploy && pm2-runtime start ecosystem.config.js",
+  "start": "npx prisma migrate deploy && pm2-runtime start ecosystem.config.js",
   "dev": "nodemon server.js",
   "build": "npx prisma generate",
   "worker": "node -r dotenv/config workers/demandAnalysisWorker.js"
