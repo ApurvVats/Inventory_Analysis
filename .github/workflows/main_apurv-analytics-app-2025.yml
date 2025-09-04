@@ -8,7 +8,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: 'apurv-analytics-app-2025'
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   BACKEND_DIRECTORY: 'Backend'
 
 jobs:
@@ -31,13 +31,7 @@ jobs:
           npm install
           npx prisma generate
 
-      - name: 4) Run Prisma Migrations
-        working-directory: ${{ env.BACKEND_DIRECTORY }}
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: 5) Verify PM2 Configuration
+      - name: 4) Verify PM2 Configuration
         working-directory: ${{ env.BACKEND_DIRECTORY }}
         run: |
           echo "Checking for ecosystem.config.js..."
@@ -49,7 +43,7 @@ jobs:
             exit 1
           fi
 
-      - name: 6) Upload Artifact (entire backend folder)
+      - name: 5) Upload Artifact (entire backend folder)
         uses: actions/upload-artifact@v4
         with:
           name: backend-app-package
@@ -100,11 +94,12 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: ./release
-          # 🔥 Removed startup-command, Azure will use "npm start" from package.json automatically
+          startup-command: 'npm start'
 
       - name: 6) Post-Deployment Verification
         run: |
           echo "🚀 Deployment completed!"
           echo "📋 Startup command: npm start"
+          echo "🔧 This runs: prisma migrate deploy && pm2-runtime start ecosystem.config.js"
           echo "📊 Expected processes: web-server + demand-worker"
           echo "🌐 App URL: ${{ steps.deploy-to-webapp.outputs.webapp-url }}"
