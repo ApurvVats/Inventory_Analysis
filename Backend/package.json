@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
- "scripts": {
-  "start": "pm2-runtime start ecosystem.config.cjs",
-  "dev": "nodemon server.js",
-  "build": "npx prisma generate",
-  "migrate": "npx prisma migrate deploy",
-  "worker": "node -r dotenv/config workers/demandAnalysisWorker.js"
-},
+  "scripts": {
+    "start": "pm2-runtime start ecosystem.config.cjs",
+    "dev": "nodemon server.js",
+    "build": "npx prisma generate",
+    "migrate": "npx prisma migrate deploy",
+    "worker": "node -r dotenv/config workers/demandAnalysisWorker.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -29,6 +29,7 @@
     "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
+    "form-data": "^4.0.4",
     "google-auth-library": "^10.2.1",
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
